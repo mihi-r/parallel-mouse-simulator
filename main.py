@@ -4,7 +4,7 @@ import sys
 import numpy as np
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget
 
-DISCOUNT_FACTOR = 0.10
+DISCOUNT_FACTOR = 0.90
 
 class App(QWidget):
     """Display window of the main app."""
@@ -20,7 +20,10 @@ def seq_cell_update(rewards, maze):
     """Sequential updating of maze cell values sequentially"""
     temp = maze.copy()
     dim = maze.shape[0]
-    for _iteration in range(50):
+    max_util_change = 0
+    max_error = 0.01*(1 - DISCOUNT_FACTOR)/DISCOUNT_FACTOR
+    count = 0
+    while max_util_change < max_error:
         for row_index in range(dim):
             for col_index in range(dim):
                 dir_values = []
@@ -46,23 +49,24 @@ def seq_cell_update(rewards, maze):
                 dir_values.append(dir_right_val)
                 final_util = rewards[row_index, col_index] + DISCOUNT_FACTOR*max(dir_values)
                 temp[row_index, col_index] = final_util
+                if abs(temp[row_index, col_index] - maze[row_index, col_index]) > max_util_change:
+                    max_error = abs(temp[row_index, col_index] - maze[row_index, col_index])
+                print(max_util_change)
+                count+= 1
         maze = temp
-    print(temp)
-
-
-            
-
+    print(count)
+    
 
 
 if __name__ == '__main__':
     # app = QApplication([])
-    rewards = np.zeros((5,5)) - 0.04
+    rewards = np.zeros((20,20)) - 0.04
     rewards[0,4] = 1
-    rewards[1,1] = -2
+    rewards[1,1] = -3
     rewards[2,0] = -0.5
     rewards[3,3] = -0.5
     print(rewards)
-    maze = np.zeros((5,5))
+    maze = np.zeros((20,20))
     seq_cell_update(rewards, maze)
     # main = App()
     # main.show()
