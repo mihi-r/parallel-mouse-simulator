@@ -3,11 +3,13 @@ import sys
 import numpy as np
 from dataclasses import dataclass
 from enum import Enum
-from PyQt5.QtGui import QPixmap, QTextBlock
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QHBoxLayout, \
     QTableWidget, QVBoxLayout, QPushButton, QCheckBox, QAbstractScrollArea, \
-    QTableWidgetItem, QTextEdit
+    QTableWidgetItem
 
+DISCOUNT_FACTOR = 0.90
+DEFAULT_REWARD = 0.04
 
 class ButtonKey(Enum):
     NONE = 1
@@ -78,7 +80,6 @@ class Coordinates:
     def __init__(self, row=0, column=0):
         self.row = row
         self.column = column
-
 
 class App(QWidget):
     """Display window of the main app."""
@@ -216,7 +217,6 @@ class App(QWidget):
         print(self.generate_numpy_matrix())
 
     def on_click_grid_cell(self):
-        print("Something was clicked")
         for grid_item in self.mouse_grid.selectedItems():
             cell_widget = self.mouse_grid.cellWidget(grid_item.row(), grid_item.column())
             
@@ -262,7 +262,6 @@ class App(QWidget):
                 if cell_widget:
                     if cell_widget.whatsThis() == CellWidgetType.FIRE.name or cell_widget.whatsThis() == CellWidgetType.ROCK.name:
                         self.mouse_grid.removeCellWidget(grid_item.row(), grid_item.column())
-                print('im a erase')
 
     def generate_numpy_matrix(self):
         numpy_array = np.empty((self.grid_dim, self.grid_dim))
@@ -275,16 +274,61 @@ class App(QWidget):
                     numpy_array[x][y] = CellRewards.EMPTY.value
                 elif cell_widget.whatsThis() == CellWidgetType.MOUSE.name:
                     numpy_array[x][y] = CellRewards.MOUSE.value
-                    print('i saw mouse')
                 elif cell_widget.whatsThis() == CellWidgetType.FIRE.name:
                     numpy_array[x][y] = CellRewards.FIRE.value
                 elif cell_widget.whatsThis() == CellWidgetType.ROCK.name:
                     numpy_array[x][y] = CellRewards.ROCK.value
                 elif cell_widget.whatsThis() == CellWidgetType.REWARD.name:
                     numpy_array[x][y] = CellRewards.REWARD.value
-                    print('i saw Reward')
-        
         return numpy_array
+
+
+def seq_cell_update(rewards):
+    """Sequential updating of maze cell values sequentially"""
+    maze = np.zeros((20,20))
+    temp = maze.copy()
+    dim = maze.shape[0]
+    max_util_change = 0
+    max_error = 0.00001*(1 - DISCOUNT_FACTOR)/DISCOUNT_FACTOR
+    count = 0
+    while True:
+        for row_index in range(dim):
+            for col_index in range(dim):
+                if rewards[row_index, col_index] == -1*DEFAULT_REWARD:
+                    dir_values = []
+                    up_val = maze[row_index, col_index]
+                    down_val = maze[row_index, col_index]
+                    left_val = maze[row_index, col_index]
+                    right_val = maze[row_index, col_index]
+                    if row_index - 1 >= 0:
+                        up_val = maze[row_index - 1, col_index]
+                    if col_index - 1 >= 0:
+                        left_val = maze[row_index, col_index - 1]
+                    if row_index + 1 < dim:
+                        down_val = maze[row_index + 1, col_index]
+                    if col_index + 1 < dim:
+                        right_val = maze[row_index, col_index + 1]
+                    dir_up_val = 0.8*up_val + 0.1*left_val + 0.1*right_val
+                    dir_left_val = 0.8*left_val + 0.1*up_val + 0.1*down_val
+                    dir_down_val = 0.8*down_val + 0.1*left_val + 0.1*right_val
+                    dir_right_val = 0.8*right_val + 0.1*up_val + 0.1*down_val
+                    dir_values.append(dir_up_val)
+                    dir_values.append(dir_left_val)
+                    dir_values.append(dir_down_val)
+                    dir_values.append(dir_right_val)
+                    final_util = rewards[row_index, col_index] + DISCOUNT_FACTOR*max(dir_values)
+                    temp[row_index, col_index] = final_util
+                    if abs(temp[row_index, col_index] - maze[row_index, col_index]) > max_util_change:
+                        max_util_change = abs(temp[row_index, col_index] - maze[row_index, col_index])
+                else:
+                    temp[row_index, col_index] = rewards[row_index, col_index]
+        count+= 1
+        maze = temp.copy()
+        if max_util_change < max_error:
+            break
+        max_util_change = 0
+    return maze
+
 if __name__ == '__main__':
     app = QApplication([])
     main = App()
