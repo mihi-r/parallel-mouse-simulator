@@ -99,7 +99,6 @@ class App(QWidget):
     def __init__(self):
         """Initialize UI elements."""
         super().__init__()
-        parallel_value_iteration.parallel_diagnostics(level=4)
 
         self.button_selected = ButtonKey.NONE
         self.mouse_coordinates = Coordinates()
