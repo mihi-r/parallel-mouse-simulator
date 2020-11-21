@@ -233,7 +233,6 @@ class App(QWidget):
         self.button_selected = ButtonKey.ERASE
 
     def on_click_erase_all(self):
-        print("clicked")
         self.button_selected = ButtonKey.NONE
 
         if not self.is_mouse_playing:
@@ -268,7 +267,6 @@ class App(QWidget):
                 self.time_stat_label.repaint()
                 self.iteration_stat_label.repaint()
 
-                print(utilities_grid)
                 self.animate_mouse(utilities_grid)
             else:
                 current_grid_rewards = self.generate_numpy_matrix()
@@ -282,7 +280,6 @@ class App(QWidget):
                 self.time_stat_label.repaint()
                 self.iteration_stat_label.repaint()
 
-                print(utilities_grid)
                 self.animate_mouse(utilities_grid)
 
     def reset_grid(self):
@@ -316,28 +313,24 @@ class App(QWidget):
                 utilities_grid[current_mouse_location.row - 1, current_mouse_location.column] != CellRewards.ROCK.value):
                 max_cell_value = utilities_grid[current_mouse_location.row - 1, current_mouse_location.column]
                 max_cell_direction = Direction.UP
-                print("print going up")
             
             if (current_mouse_location.row + 1 < self.grid_dim and
                 utilities_grid[current_mouse_location.row + 1, current_mouse_location.column] > max_cell_value and
                 utilities_grid[current_mouse_location.row + 1, current_mouse_location.column] != CellRewards.ROCK.value):
                 max_cell_value = utilities_grid[current_mouse_location.row + 1, current_mouse_location.column]
                 max_cell_direction = Direction.DOWN
-                print("print going down")
             
             if (current_mouse_location.column - 1 >= 0 and
                 utilities_grid[current_mouse_location.row, current_mouse_location.column - 1] > max_cell_value and
                 utilities_grid[current_mouse_location.row, current_mouse_location.column - 1] != CellRewards.ROCK.value):
                 max_cell_value = utilities_grid[current_mouse_location.row, current_mouse_location.column - 1]
                 max_cell_direction = Direction.LEFT
-                print("print going left")
 
             if (current_mouse_location.column + 1 < self.grid_dim and
                 utilities_grid[current_mouse_location.row, current_mouse_location.column + 1] > max_cell_value and
                 utilities_grid[current_mouse_location.row, current_mouse_location.column + 1] != CellRewards.ROCK.value):
                 max_cell_value = utilities_grid[current_mouse_location.row, current_mouse_location.column + 1]
                 max_cell_direction = Direction.RIGHT
-                print("print going right")
 
             self.mouse_grid.item(current_mouse_location.row, current_mouse_location.column).setBackground(QColor(255, 255, 204))
             self.mouse_grid.removeCellWidget(current_mouse_location.row, current_mouse_location.column)
@@ -531,7 +524,6 @@ def parallel_value_iteration(rewards):
 
         count+= 1
         maze = temp.copy()
-        print(len(max_util_change))
         if len(max_util_change) and np.max(max_util_change) < max_error:
             break
 
