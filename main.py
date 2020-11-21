@@ -99,6 +99,7 @@ class App(QWidget):
     def __init__(self):
         """Initialize UI elements."""
         super().__init__()
+        parallel_value_iteration.parallel_diagnostics(level=4)
 
         self.button_selected = ButtonKey.NONE
         self.mouse_coordinates = Coordinates()
@@ -260,6 +261,7 @@ class App(QWidget):
 
                 start_time = time.perf_counter()
                 utilities_grid, count = parallel_value_iteration(current_grid_rewards)
+                parallel_value_iteration.parallel_diagnostics(level=4)
                 total_time = time.perf_counter() - start_time
 
                 self.time_stat_label.setText(f"Value interation time: {total_time:0.4f}s")
