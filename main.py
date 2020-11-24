@@ -108,8 +108,8 @@ class App(QWidget):
         self.is_parallel_checked = False
         self.is_mouse_playing = False
         self.play_button = QPushButton("Play Mouse")
-        self.time_stat_label = QLabel("Value interation time: 0s")
-        self.iteration_stat_label = QLabel("Interation count: 0")
+        self.time_stat_label = QLabel("Value iteration time: 0s")
+        self.iteration_stat_label = QLabel("Iteration count: 0")
         self.mouse_grid = self.create_mouse_grid()
         self.button_panel = self.create_button_panel()
         self.h_box = QHBoxLayout()
@@ -263,8 +263,8 @@ class App(QWidget):
                 parallel_value_iteration.parallel_diagnostics(level=4)
                 total_time = time.perf_counter() - start_time
 
-                self.time_stat_label.setText(f"Value interation time: {total_time:0.4f}s")
-                self.iteration_stat_label.setText(f"Interation count: {count}")
+                self.time_stat_label.setText(f"Value iteration time: {total_time:0.4f}s")
+                self.iteration_stat_label.setText(f"Iteration count: {count}")
                 self.time_stat_label.repaint()
                 self.iteration_stat_label.repaint()
 
@@ -276,8 +276,8 @@ class App(QWidget):
                 utilities_grid, count = seq_value_iteration(current_grid_rewards)
                 total_time = time.perf_counter() - start_time
 
-                self.time_stat_label.setText(f"Value interation time: {total_time:0.4f}s")
-                self.iteration_stat_label.setText(f"Interation count: {count}")
+                self.time_stat_label.setText(f"Value iteration time: {total_time:0.4f}s")
+                self.iteration_stat_label.setText(f"Iteration count: {count}")
                 self.time_stat_label.repaint()
                 self.iteration_stat_label.repaint()
 
