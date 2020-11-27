@@ -16,6 +16,7 @@ DEFAULT_REWARD = 0.04
 
 
 class ButtonKey(Enum):
+    """Button type constants"""
     NONE = 1
     MOUSE = 2
     REWARD = 3
@@ -25,6 +26,7 @@ class ButtonKey(Enum):
 
 
 class CellWidgetType(Enum):
+    """Cell widget constants"""
     MOUSE = 'MOUSE'
     REWARD = 'REWARD'
     FIRE = 'FIRE'
@@ -32,6 +34,7 @@ class CellWidgetType(Enum):
 
 
 class CellRewards(Enum):
+    """Reward value constants"""
     MOUSE = -0.04
     REWARD = 1.0
     FIRE = -3.0
@@ -40,6 +43,7 @@ class CellRewards(Enum):
 
 
 class Direction(Enum):
+    """Direction constants"""
     CURRENT = 1
     UP = 2
     RIGHT = 3
@@ -88,7 +92,8 @@ class RockWidget(QLabel):
 
 
 @dataclass
-class Coordinates:    
+class Coordinates:
+    """Coordinates class to keep track of the Mouse and Reward x, y positions"""
     def __init__(self, row=0, column=0):
         self.row = row
         self.column = column
@@ -218,21 +223,27 @@ class App(QWidget):
         return grid
 
     def on_click_mouse_move(self):
+        """Sets button_selected to mouse"""
         self.button_selected = ButtonKey.MOUSE
 
     def on_click_reward_move(self):
+        """Sets button_selected to reward"""
         self.button_selected = ButtonKey.REWARD 
         
     def on_click_add_fire(self):
+        """Sets button_selected to fire"""
         self.button_selected = ButtonKey.FIRE
     
     def on_click_add_rock(self):
+        """Sets button_selected to rock"""
         self.button_selected = ButtonKey.ROCK
 
     def on_click_erase(self):
+        """Sets button_selected to erase"""
         self.button_selected = ButtonKey.ERASE
 
     def on_click_erase_all(self):
+        """Clears the grid of all rock and fire elements"""
         self.button_selected = ButtonKey.NONE
 
         if not self.is_mouse_playing:
@@ -245,6 +256,7 @@ class App(QWidget):
                         self.mouse_grid.removeCellWidget(x_index, y_index)
 
     def on_click_play(self):
+        """Starts the search to find the best path"""
         if self.is_mouse_playing:
             self.play_button.setText("Start Mouse")
             self.play_button.repaint()
@@ -284,6 +296,7 @@ class App(QWidget):
                 self.animate_mouse(utilities_grid)
 
     def reset_grid(self):
+        """Resets the grid back to the original setup"""
         for y_index in range(self.grid_dim):
             for x_index in range (self.grid_dim):
                 self.mouse_grid.item(x_index, y_index).setBackground(QColor(255, 255, 255))
@@ -303,6 +316,7 @@ class App(QWidget):
         self.mouse_grid.setCellWidget(self.reward_coordinates.row, self.reward_coordinates.column, reward_widget)
 
     def animate_mouse(self, utilities_grid):
+        """Moves the mouse from cell to cell using the best path"""
         current_mouse_location = Coordinates(self.mouse_coordinates.row, self.mouse_coordinates.column)
 
         while self.is_mouse_playing:
@@ -358,9 +372,11 @@ class App(QWidget):
             time.sleep(0.3)
 
     def on_click_parallel_check(self):
+        """Sets whether the best path algorithm will run sequentially or in parallel"""
         self.is_parallel_checked = not self.is_parallel_checked
 
     def on_click_grid_cell(self):
+        """Logic applied to each cell in the grid to determine what happens when a user clicks on the cell"""
         if not self.is_mouse_playing:
             for grid_item in self.mouse_grid.selectedItems():
                 cell_widget = self.mouse_grid.cellWidget(grid_item.row(), grid_item.column())
@@ -409,12 +425,12 @@ class App(QWidget):
                             self.mouse_grid.removeCellWidget(grid_item.row(), grid_item.column())
 
     def generate_numpy_matrix(self):
+        """Generates a numpy matrix of reward values for the best path algorithm to use"""
         numpy_array = np.empty((self.grid_dim, self.grid_dim))
 
         for x in range(self.grid_dim):
             for y in range(self.grid_dim):
                 cell_widget = self.mouse_grid.cellWidget(x, y)
-                
                 if not cell_widget:
                     numpy_array[x][y] = CellRewards.EMPTY.value
                 elif cell_widget.whatsThis() == CellWidgetType.MOUSE.name:
